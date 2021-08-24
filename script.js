@@ -1,3 +1,11 @@
+// const cartList = selectCartList();
+// console.log('Tá puxando no início do código ?', cartList);
+
+function selectCartList() {
+  const cartListItem = document.querySelector('.cart__items');
+  return cartListItem;
+}
+
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
   img.className = 'item__image';
@@ -28,25 +36,29 @@ function getSkuFromProductItem(item) {
 
 function createCartItemElement({ sku, name, salePrice, image }) {
   const li = document.createElement('li');
-  const cartList = document.querySelector('.cart__items');
+  const cartList = selectCartList();
+  console.log('1º cartlist declarado: ', cartList);
+  console.log('Tá puxando dentro do creatCartItem ?', cartList);
   li.className = 'cart__item';
   li.innerText = `SKU: ${sku} | NAME: ${name} | PRICE: $${salePrice}`;
   li.appendChild(createProductImageElement(image));
   li.addEventListener('click', (eve2) => {
   cartList.removeChild(eve2.target);
-  localStorage.setItem("cartItemsLocal", JSON.stringify(document.querySelector('.cart__items').innerHTML));
+  localStorage.setItem('cartItemsLocal', JSON.stringify(cartList.innerHTML));
   console.log('item removido pela função 1');
-
   });
   return li;
 }
 
+// console.log('Tá puxando valores (2) ?', cartList);
 async function cartItemClickListener(event) {
   const newObj = {};
   const idEvent = event.target.parentElement.firstChild.innerText;
   await fetch(`https://api.mercadolibre.com/items/${idEvent}`).then((item) => {
   item.json().then((data) => { 
-    const cartList = document.querySelector('.cart__items');
+    const cartList = selectCartList();
+    console.log('2º cartlist declarado: ', cartList);
+    console.log('Tá puxando dentro do cartItemClickListener ? ', cartList);
     const { id, title, price, thumbnail } = data;
     newObj.sku = id;
     newObj.name = title;
@@ -55,12 +67,30 @@ async function cartItemClickListener(event) {
     cartList.appendChild(createCartItemElement(newObj));
     const cartItemsLocal = cartList.innerHTML;
     console.log(JSON.stringify(cartItemsLocal));
-    localStorage.setItem("cartItemsLocal", JSON.stringify(cartItemsLocal));
+    localStorage.setItem('cartItemsLocal', JSON.stringify(cartItemsLocal));
   });
   });
   }
   
+const requisitoQuatro = () => {
+  // console.log('Tá puxando valores dentro do requisito 4 ?', cartList);
+  const btn = document.querySelectorAll('.item__add');
+    const cartList = selectCartList();
+    console.log('3º cartlist declarado: ', cartList);
+    console.log('Tá puxando dentro do requisito 4 ? ', cartList);
+    btn.forEach((item) => item.addEventListener('click', cartItemClickListener));
+    const myItems = localStorage.getItem('cartItemsLocal');
+    cartList.innerHTML = JSON.parse(myItems);
+    const list = document.querySelectorAll('.cart__item');
+    list.forEach((item) => item.addEventListener('click', (eve) => {
+      cartList.removeChild(eve.target);
+    localStorage.setItem('cartItemsLocal', JSON.stringify(cartList.innerHTML));
+    }));
+};
+
 window.onload = async () => {
+  const cartList = selectCartList();
+  console.log('Tá puxando valores dentro no window on load ?', cartList);
   const API_URL = 'https://api.mercadolibre.com/sites/MLB/search?q=$computador';
   const obj = {};
   await fetch(API_URL).then((response) => { 
@@ -73,21 +103,7 @@ window.onload = async () => {
         document.querySelector('.items').appendChild(createProductItemElement(obj));
        return obj;
       });
-    const btn = document.querySelectorAll('.item__add');
-    btn.forEach((item) => item.addEventListener('click', cartItemClickListener));
-    
-    let myItems = localStorage.getItem("cartItemsLocal");
-    console.log(JSON.parse(myItems));
-    document.querySelector('.cart__items').innerHTML = JSON.parse(myItems);
-    const list = document.querySelectorAll('.cart__item');
-    console.log(list);
-    list.forEach((item) => item.addEventListener('click', (eve) => {
-    document.querySelector('.cart__items').removeChild(eve.target);
-    localStorage.setItem("cartItemsLocal", JSON.stringify(document.querySelector('.cart__items').innerHTML))
-    console.log('item removido pela função 2');
-    }));
-    
+  requisitoQuatro();
   }); 
 });
-  
 };
