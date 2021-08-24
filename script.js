@@ -28,11 +28,15 @@ function getSkuFromProductItem(item) {
 
 function createCartItemElement({ sku, name, salePrice, image }) {
   const li = document.createElement('li');
+  const cartList = document.querySelector('.cart__items');
   li.className = 'cart__item';
   li.innerText = `SKU: ${sku} | NAME: ${name} | PRICE: $${salePrice}`;
   li.appendChild(createProductImageElement(image));
-  li.addEventListener('click', (eve) => {
-  document.querySelector('.cart__items').removeChild(eve.target);
+  li.addEventListener('click', (eve2) => {
+  cartList.removeChild(eve2.target);
+  localStorage.setItem("cartItemsLocal", JSON.stringify(document.querySelector('.cart__items').innerHTML));
+  console.log('item removido pela função 1');
+
   });
   return li;
 }
@@ -49,6 +53,9 @@ async function cartItemClickListener(event) {
     newObj.salePrice = price;
     newObj.image = thumbnail;
     cartList.appendChild(createCartItemElement(newObj));
+    const cartItemsLocal = cartList.innerHTML;
+    console.log(JSON.stringify(cartItemsLocal));
+    localStorage.setItem("cartItemsLocal", JSON.stringify(cartItemsLocal));
   });
   });
   }
@@ -67,7 +74,20 @@ window.onload = async () => {
        return obj;
       });
     const btn = document.querySelectorAll('.item__add');
-    btn.forEach((item) => item.addEventListener('click', cartItemClickListener));   
+    btn.forEach((item) => item.addEventListener('click', cartItemClickListener));
+    
+    let myItems = localStorage.getItem("cartItemsLocal");
+    console.log(JSON.parse(myItems));
+    document.querySelector('.cart__items').innerHTML = JSON.parse(myItems);
+    const list = document.querySelectorAll('.cart__item');
+    console.log(list);
+    list.forEach((item) => item.addEventListener('click', (eve) => {
+    document.querySelector('.cart__items').removeChild(eve.target);
+    localStorage.setItem("cartItemsLocal", JSON.stringify(document.querySelector('.cart__items').innerHTML))
+    console.log('item removido pela função 2');
+    }));
+    
   }); 
 });
+  
 };
