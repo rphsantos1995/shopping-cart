@@ -1,4 +1,5 @@
 const newObj = {};
+const totalPrice = () => document.querySelector('.total-price');
 
 function selectAllItems() {
   const cartItems = document.querySelectorAll('.cart__item');
@@ -8,21 +9,6 @@ function selectAllItems() {
 function selectCartList() {
   const cartListItem = document.querySelector('.cart__items');
   return cartListItem;
-}
-
-function sumAllValuesonLoad() {
-  // const list = selectAllItems();
-  //   const result = [];
-  //   list.forEach((item) => {
-  //     const currentPriceValue = parseInt(item.innerHTML.split('$').pop().split('<')[0]);
-  //     result.push(currentPriceValue);
-  //   });
-  //   let refreshLocalPrice;
-  //   (list.length !== 0) ? refreshLocalPrice = result.reduce((a, b) => a + b): refreshLocalPrice = 0;
-  //   console.log('preço total no f5 ', refreshLocalPrice);
-  //   let totalPriceHolder = document.querySelector('.total-price');
-  //   totalPriceHolder.innerHTML = refreshLocalPrice;
-  //   localStorage.setItem('totalPrice', JSON.stringify(refreshLocalPrice));  
 }
 
 function createProductImageElement(imageSource) {
@@ -61,10 +47,15 @@ function createCartItemElement({ sku, name, salePrice, image }) {
   li.appendChild(createProductImageElement(image));
   li.addEventListener('click', (eve2) => {
   cartList.removeChild(eve2.target);
+  const cartValue = document.querySelector('.total-price');
+  const totalPriceValue = Number(cartValue.innerHTML);
+  const excludedItemPrice = Number(eve2.target.innerHTML.split('$').pop().split('<')[0]);
+  cartValue.innerHTML = totalPriceValue - excludedItemPrice;
   localStorage.setItem('cartItemsLocal', JSON.stringify(cartList.innerHTML));
   });
   return li;
 }
+let priceTotal = 0;
 async function cartItemClickListener(event) {
   const idEvent = event.target.parentElement.firstChild.innerText;
   await fetch(`https://api.mercadolibre.com/items/${idEvent}`).then((item) => {
@@ -76,6 +67,8 @@ async function cartItemClickListener(event) {
     newObj.salePrice = price;
     newObj.image = thumbnail;
     cartList.appendChild(createCartItemElement(newObj));
+    priceTotal += newObj.salePrice;
+    totalPrice().innerHTML = priceTotal;
     const cartItemsLocal = cartList.innerHTML;
     localStorage.setItem('cartItemsLocal', JSON.stringify(cartItemsLocal));
   });
@@ -106,6 +99,7 @@ function clearList() {
   clearButton.addEventListener('click', () => {
     const lis = document.querySelectorAll('li');
     lis.forEach((li) => li.remove());
+    totalPrice().innerHTML = 0;
     localStorage.setItem('cartItemsLocal', JSON.stringify(cartList.innerHTML));
   });
 }
