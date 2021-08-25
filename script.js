@@ -110,14 +110,13 @@ function clearList() {
   });
 }
 
-function textOnLoading () {
+function textOnLoading() {
   const mainSection = document.querySelector('.container');
   const loadSpan = document.createElement('span');
   loadSpan.className = 'loading';
   loadSpan.innerText = 'Loading';
   mainSection.appendChild(loadSpan);
   setTimeout(() => loadSpan.remove(), 3000);
-
 }
 
 const getItemsOnPage = async () => {
@@ -132,14 +131,13 @@ const getItemsOnPage = async () => {
         obj.name = title;
         obj.image = thumbnail;
         document.querySelector('.items').appendChild(createProductItemElement(obj));
-       // return obj;
+       return obj;
       });
   carregarCarinhoOnLoad();
   clearList();  
   }); 
 });
-}
-
+};
 
 window.onload = () => {
   getItemsOnPage();
